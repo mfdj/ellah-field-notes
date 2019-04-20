@@ -1,3 +1,0 @@
-#!/usr/bin/env my-runtime
-
-echo 'my runner'

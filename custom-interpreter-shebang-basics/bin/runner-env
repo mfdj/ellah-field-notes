@@ -1,0 +1,3 @@
+#!/usr/bin/env custom-interpreter
+
+echo 'runner using env to lookup custom-interpreter 🏃‍'

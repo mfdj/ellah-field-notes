@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+echo 'custom-interpreter arguments'
+echo "  arg0: $0"
+echo "  arg1: $1"
+echo
+echo 'custom-interpreter stdin'
+i=0
+while read line
+do
+  i=$((i + 1))
+  echo "  stdin line$i: $line"
+done < "${1:-/dev/stdin}"

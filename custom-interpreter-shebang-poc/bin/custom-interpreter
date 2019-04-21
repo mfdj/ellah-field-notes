@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+
+echo
+echo "🧭 begin custom-interpreter $0‍"
+
+custom_function() {
+  echo "custom_function sees \$0 as: $0"
+}
+
+CUSTOM_VARIABLE="custom-variable defined in $0"
+
+# make the variable/function available in the subshell
+export CUSTOM_VARIABLE
+export -f custom_function
+
+# • we need to explicitly execute with bash otherwise the shebang will be re-consulted
+#   and kickoff an infinite loop
+bash "$1"
+
+echo "🛌 end custom-interpreter $0 🏃‍"

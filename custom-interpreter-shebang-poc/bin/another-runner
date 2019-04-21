@@ -1,0 +1,7 @@
+#!/usr/bin/env custom-interpreter
+# shellcheck shell=bash
+
+echo
+echo "🏃🏃 begin another-runner $0‍"
+custom_function
+echo "CUSTOM_VARIABLE: $CUSTOM_VARIABLE"

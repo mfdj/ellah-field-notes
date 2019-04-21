@@ -1,0 +1,17 @@
+#!/usr/bin/env custom-interpreter
+# shellcheck shell=bash
+
+echo
+echo "🏃 begin runner $0"
+
+# function body will be evaluated in this context (i.e. variable expansions use this context)
+custom_function
+
+# nothing surprising here
+echo "CUSTOM_VARIABLE: $CUSTOM_VARIABLE"
+
+# we can execute another runner no problem
+another-runner
+
+# we can execute another bash script no problem
+another-script.sh

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-export PATH="./custom-interpreter-shebang-basics/bin:$PATH"
+export PATH="./bin:$PATH"
 
 echo '1️⃣  runner-env'
 runner-env

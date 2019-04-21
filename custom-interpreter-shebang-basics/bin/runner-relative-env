@@ -1,3 +1,3 @@
-#!/usr/bin/env ./custom-interpreter-shebang-basics/bin/custom-interpreter
+#!/usr/bin/env ./bin/custom-interpreter
 
 echo 'runner proxying to env with a relative path to custom-interpreter 🏃‍'

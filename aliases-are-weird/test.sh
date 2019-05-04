@@ -1,12 +1,13 @@
 #!/usr/bin/env bash
 
-# be chill about expanding variable in the alias cause that's the point
-# shellcheck disable=SC2139
-alias custom_alias="echo custom alias from $0"
+echo 'bash -i'
+bash -i ./another-program.sh
 
-# won't work - "…line 8: custom_alias: command not found"
-custom_alias
+echo
+echo 'execute script'
+./another-program.sh
 
-# will work
-shopt -s expand_aliases
+echo
+echo 'source script'
+source another-program.sh
 custom_alias

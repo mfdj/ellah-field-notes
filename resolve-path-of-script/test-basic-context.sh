@@ -1,30 +1,36 @@
 #!/usr/bin/env bash
 
+echo 'run style | pwd | «$0» | «$BASH_SOURCE» | ls dir-stub'
+
+echo
+echo '--- same directory as script'
 echo -n 'exec script   '
-./lsla.sh
+./pwd0bashsourcels.sh
 
 echo -n 'source script '
-source lsla.sh
+source pwd0bashsourcels.sh
 
 echo -n 'exec command  '
-lsla
+pwd0bashsourcels
 
 echo -n 'exec string   '
-bash -c "$(cat lsla.sh)"
+bash -c "$(cat pwd0bashsourcels.sh)"
 
-another_script=$(mktemp)
-cat <<- 'EOF' >"$another_script"
+echo
+echo '--- from another directory'
+in_another_directory=$(mktemp)
+cat <<- 'EOF' >"$in_another_directory"
    echo -n 'exec script   '
-   ./lsla.sh
+   ./pwd0bashsourcels.sh
 
    echo -n 'source script '
-   source lsla.sh
+   source pwd0bashsourcels.sh
 
    echo -n 'exec command  '
-   lsla
+   pwd0bashsourcels
 
    echo -n 'exec string   '
-   bash -c "$(cat lsla.sh)"
+   bash -c "$(cat pwd0bashsourcels.sh)"
 EOF
-bash "$another_script"
-rm "$another_script"
+bash "$in_another_directory"
+rm "$in_another_directory"

@@ -54,8 +54,9 @@ Let's define our terms:
   - or piped `echo "<bash code>" | bash`
 - **shell script** refers to shell code executed via a file; this includes
   - files passed as arguments to bash binary `bash path/to/file.sh`
-  - scripts (with the correct permissions) executed via a shebang
-  - aka code that runs in it's own sub-process
+  - scripts (with the correct permissions) executed via a shebang, including those
+    found via a PATH lookup
+  - aka code that runs run in a Bash sub-process
 - **sourced script** refers to shell code sourced via a file; this is a special
   case that can happen in all the other contexts — i.e. `source path/to/file.sh`
   — and has a few quirks of it's own
@@ -80,10 +81,10 @@ tersely:
   the corresponding shell function names in the FUNCNAME array variable are defined.
   ([manual](https://www.gnu.org/software/bash/manual/bash.html#index-BASH_005fSOURCE))
 
-### $0 in the interactive and string-argument contexts
+**$0 in the interactive and string-argument contexts**
 
-In interactive and string-argument contexts `$0` is the name of the shell (bash!)
-with a subtle difference being that the interactive shell name leads with a dash
+In the interactive and string-argument contexts `$0` is the name of the shell (bash!)
+with a subtle difference being that the interactive shell name leads with a dash:
 
 ```sh
 $ echo "$0"
@@ -96,7 +97,7 @@ $ echo 'echo "$0"' | bash
 bash
 ```
 
-same results when sourcing
+same results when sourcing:
 
 ```sh
 $ echo 'echo "$0"' > echo-zero.sh
@@ -111,12 +112,93 @@ $ echo 'source echo-zero.sh' | bash
 bash
 ```
 
-### $0 in the shell-script context
+**$0 in the shell-script context**
 
-…
+In the shell-script context `$0` is the path required to execute the script. In
+other words it represents the path of to file being executed from the current
+directory context. Easy to visualize as:
+
+```sh
+$ echo 'echo "$0"' > path/to/file.sh
+$ bash path/to/file.sh
+path/to/file.sh
+```
+
+When a file that is sourced contains `$0` it's value will reflect the context
+of the shell-script which started the bash process:
+
+```sh
+$ echo 'echo "$0"' > source-this.sh
+$ echo 'source source-this.sh' > path/to/file.sh
+$ bash path/to/file.sh
+path/to/file.sh
+```
+
+**$BASH_SOURE in the interactive and string-argument contexts**
+
+In the interactive and string-argument contexts `$BASH_SOURCE` is an empty array:
+
+```sh
+$ declare -p BASH_SOURCE
+declare -a BASH_SOURCE=()
+
+$ bash -c "declare -p BASH_SOURCE"
+declare -a BASH_SOURCE=()
+```
+
+When a file that contains `$BASH_SOURCE` is sourced it's value will be an array
+with a single item which contains the path to the sourced file:
+
+```sh
+$ echo 'declare -p BASH_SOURCE' > source-this.sh
+$ source source-this.sh
+declare -a BASH_SOURCE=([0]="source-this.sh")
+```
+
+This reveals the interesting feature of _BASH\_SOURCE_: it contains the chain of
+sourced files (from the most recently sourced to least):
+
+```sh
+$ echo 'declare -p BASH_SOURCE' > print-bash-source.sh
+$ echo 'source print-bash-source.sh' > file/sourced/first.sh
+$ source file/sourced/first.sh
+declare -a BASH_SOURCE=([0]="print-bash-source.sh" [1]="file/sourced/first.sh")
+```
+
+**$BASH_SOURE in the shell-script context**
+
+In the shell-script context `$BASH_SOURCE` is an array with a single item which
+is identical to `$0`:
+
+```sh
+$ echo 'echo "${#BASH_SOURCE[@]}"' > shell-script.sh
+$ echo 'echo "${BASH_SOURCE[0]}"' >> shell-script.sh
+$ echo 'echo "$0"' >> shell-script.sh
+$ bash shell-script.sh
+1
+shell-script.sh
+shell-script.sh
+```
+
+When a file that contains `$BASH_SOURCE` is sourced it's value will be an array
+with two items, the first will be the path to the file being sourced and the
+second will be the path to the file being executed (i.e. same as `$0`):
+
+```sh
+$ echo 'echo "$0"' > loop-through.sh
+$ echo 'for item in "${BASH_SOURCE[@]}"; do echo " • $item"; done' >> loop-through.sh
+$ echo 'source loop-through.sh' >> sources-loop-through.sh
+$ bash sources-loop-through.sh
+sources-loop-through.sh
+ • loop-through.sh
+ • sources-loop-through.sh
+```
+
+Each time a file is sourced it adds an item to the _BASH\_SOURCE_.
 
 ## In the wild
 
 - https://gist.github.com/tvlooy/cbfbdb111a4ebad8b93e
 - http://stackoverflow.com/questions/59895/can-a-bash-script-tell-what-directory-its-stored-in?answertab=votes
 - https://bosker.wordpress.com/2012/02/12/bash-scripters-beware-of-the-cdpath/
+

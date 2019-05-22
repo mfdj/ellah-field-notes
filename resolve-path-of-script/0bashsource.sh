@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
-echo -n "«${0}» "
+echo " • «${0}» "
 
 if [[ ${#BASH_SOURCE[@]} == 0 ]]; then
-   echo -n '(BASH_SOURCE is empty)'
+   echo ' • (BASH_SOURCE is empty)'
 fi
 
 i=0
 for item in "${BASH_SOURCE[@]}"; do
-   echo -n "[$i] «${item}» "
+   echo " • [$i] «${item}»"
    ((i++))
 done
 

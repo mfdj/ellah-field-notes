@@ -8,6 +8,18 @@ echo ' • …'
 
 echo
 echo '--- same directory as script'
+echo 'string-argument'
+bash -c "$(cat 0bashsource.sh)"
+
+echo 'file-argument'
+bash 0bashsource.sh
+
+echo 'exec script'
+./0bashsource.sh
+
+echo 'exec command'
+0bashsource
+
 echo 'source script'
 source 0bashsource.sh
 
@@ -20,30 +32,24 @@ echo "source '$copy_of_0bashsource'" > "$source_with_a_source"
 # shellcheck disable=SC1090
 source "$source_with_a_source"
 
-echo 'exec string'
-bash -c "$(cat 0bashsource.sh)"
-
-echo 'exec script'
-./0bashsource.sh
-
-echo 'exec command'
-0bashsource
-
 echo
 echo '--- from another directory'
 in_another_directory=$(mktemp)
 cat <<- 'EOF' >"$in_another_directory"
-   echo 'source script'
-   source 0bashsource.sh
-
-   echo 'exec string'
+   echo 'string-argument'
    bash -c "$(cat 0bashsource.sh)"
+
+   echo 'file-argument'
+   bash 0bashsource.sh
 
    echo 'exec script'
    ./0bashsource.sh
 
    echo 'exec command'
    0bashsource
+
+   echo 'source script'
+   source 0bashsource.sh
 EOF
 bash "$in_another_directory"
 rm "$in_another_directory"

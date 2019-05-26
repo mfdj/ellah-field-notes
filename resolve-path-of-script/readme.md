@@ -6,22 +6,21 @@ where  the currently running script resides.
 ### The primacy of interactive usage
 
 When running a shell-script the **current directory context is the path where the
-script is ran from**, not the directory where the shell- script resides. This applies
+script is ran from**, not the directory where the shell-script resides. This applies
 to all subsequent shell code executed (including when it's exec'd or source'd).
 
-While this is probably intuitively obvious if you've written more than few shell
-scripts it's a critical point to anchor on because Bash doesn't give us a simple
-way to know where the _shell-script being executed_ is located, making it hard to build
-portable scripts that are composed of multiple files.
+While it's probably intuitively obvious if you've written more than few shell scripts
+it's a critical point to anchor on because Bash lacks a module import system. As
+a result single file shell-script programs are quite common. While embracing this
+limitation isn't always a bad thing, strictly speaking it's not necessary.
 
-### Modules are hard
+### The source problem
 
-Shells unfortunately (but understandably) lack a standard way to import/require code as
-"modules" in a simple and portable way because shells are designed with interactive usage
-in mind.
+We can use the `source` builtin to include code from one file into another, but
+it's constrained by what feels like the simplest interactive use case.
 
-For example this code will only work when **running** this script in a directory
-which contains a file called `some-other-code.sh`:
+ The following shell-script will work but _only_ when executed in a directory which
+ contains a file called `some-other-code.sh`:
 
 ```sh
 #!/usr/bin/env bash
@@ -29,9 +28,9 @@ source 'some-other-code.sh'
 function_from_other_code
 ```
 
-`source` is a useful tool for breaking up your shell-scripts into reusable chunks,
-but it expects standard unix paths, which means to make this script portable, we'll
-need to determine the path of the script at runtime, roughly like:
+This is because `source` expects standard unix paths. If we want to bundle our main
+shell-script with a `some-other-code.sh` and allow it to be executed from *any*
+directory we'll need to determine the (absolute) path at runtime, roughly like:
 
 ```sh
 #!/usr/bin/env bash
@@ -40,8 +39,12 @@ source "$script_dir/some-other-code.sh"
 function_from_other_code
 ```
 
-Bash gives some tools which can allow us to solve this problem ourselves, leading
-to a profusion of similar approaches with subtly different consequences.
+Obviously the ellipsis `…` are hiding an actual technique for finding the `script_dir`.
+This is because Bash doesn't give us a simple way to know where the _shell-script
+being executed_ is located, making it hard to build portable scripts that are composed
+of multiple files.
+
+Hard, but still very possible.
 
 ## Basics
 
@@ -100,8 +103,10 @@ bash
 same results when sourcing:
 
 ```sh
-$ echo 'echo "$0"' > echo-zero.sh
+# echo-zero.sh
+echo "$0"
 
+# interactive-shell
 $ source echo-zero.sh
 -bash
 
@@ -119,28 +124,36 @@ other words it represents the path of to file being executed from the current
 directory context. Easy to visualize as:
 
 ```sh
-$ echo 'echo "$0"' > path/to/file.sh
-$ bash path/to/file.sh
-path/to/file.sh
+# path/to/echo-zero.sh
+echo "$0"
+
+# interactive-shell
+$ bash path/to/echo-zero.sh
+path/to/echo-zero.sh
 ```
 
-If `path/to/file.sh` had a shebang and an executable bit the results would be
+If `path/to/echo-zero.sh` had a shebang and an executable bit the results would be
 similar when executing via a direct path or a PATH lookup:
 
 ```sh
-$ ./path/to/file.sh
-./path/to/file.sh
+$ ./path/to/echo-zero.sh
+./path/to/echo-zero.sh
 $ PATH+=:./path/to
-$ file.sh
-./path/to/file.sh
+$ echo-zero.sh
+./path/to/echo-zero.sh
 ```
 
 When a file that is sourced contains `$0` it's value will reflect the context
 of the shell-script which started the bash process:
 
 ```sh
-$ echo 'echo "$0"' > source-this.sh
-$ echo 'source source-this.sh' > path/to/file.sh
+# source-this.sh
+echo "$0"
+
+# path/to/file.sh
+source source-this.sh
+
+# interactive-shell
 $ bash path/to/file.sh
 path/to/file.sh
 ```
@@ -161,7 +174,10 @@ When a file that contains `$BASH_SOURCE` is sourced it's value will be an array
 with a single item which contains the path to the sourced file:
 
 ```sh
-$ echo 'declare -p BASH_SOURCE' > source-this.sh
+# source-this.sh
+declare -p BASH_SOURCE
+
+# interactive-shell
 $ source source-this.sh
 declare -a BASH_SOURCE=([0]="source-this.sh")
 ```
@@ -170,8 +186,13 @@ This reveals the interesting feature of _BASH\_SOURCE_: it contains the chain of
 sourced files (from least recently sourced to most):
 
 ```sh
-$ echo 'declare -p BASH_SOURCE' > print-bash-source.sh
-$ echo 'source print-bash-source.sh' > file/sourced/first.sh
+# print-bash-source.sh
+declare -p BASH_SOURCE
+
+# file/sourced/first.sh
+source print-bash-source.sh
+
+# interactive-shell
 $ source file/sourced/first.sh
 declare -a BASH_SOURCE=([0]="print-bash-source.sh" [1]="file/sourced/first.sh")
 ```
@@ -182,13 +203,16 @@ In the shell-script context `$BASH_SOURCE` is an array with a single item which
 is identical to `$0`:
 
 ```sh
-$ echo 'echo "${#BASH_SOURCE[@]}"' > shell-script.sh
-$ echo 'echo "${BASH_SOURCE[0]}"' >> shell-script.sh
-$ echo 'echo "$0"' >> shell-script.sh
-$ bash shell-script.sh
+# bash_source_and_0.sh
+echo "${#BASH_SOURCE[@]}" # array length
+echo "${BASH_SOURCE[0]}"  # first item
+echo "$0"
+
+# interactive-shell
+$ bash bash_source_and_0.sh
 1
-shell-script.sh
-shell-script.sh
+bash_source_and_0.sh
+bash_source_and_0.sh
 ```
 
 When a file that contains `$BASH_SOURCE` is sourced it's value will be an array
@@ -196,9 +220,12 @@ with two items, the first will be the path to the file being sourced and the sec
 will be the path to the file being executed (i.e. same as `$0`):
 
 ```sh
-$ echo 'echo "$0"' > loop-through.sh
-$ echo 'for item in "${BASH_SOURCE[@]}"; do echo " • $item"; done' >> loop-through.sh
-$ echo 'source loop-through.sh' >> sources-loop-through.sh
+# sources-loop-through.sh
+echo "$0"
+for item in "${BASH_SOURCE[@]}"; do echo " • $item"; done
+source loop-through.sh
+
+# interactive-shell
 $ bash sources-loop-through.sh
 sources-loop-through.sh
  • loop-through.sh
@@ -246,5 +273,3 @@ $ dirname ./asdf/ghjk
 - https://gist.github.com/tvlooy/cbfbdb111a4ebad8b93e
 - http://stackoverflow.com/questions/59895/can-a-bash-script-tell-what-directory-its-stored-in?answertab=votes
 - https://bosker.wordpress.com/2012/02/12/bash-scripters-beware-of-the-cdpath/
-
-

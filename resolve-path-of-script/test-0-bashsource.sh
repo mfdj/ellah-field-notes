@@ -1,11 +1,10 @@
 #!/usr/bin/env bash
 
 echo 'run style'
-echo ' • 0'
 echo ' • BASH_SOURCE[0]'
 echo ' • BASH_SOURCE[1]'
 echo ' • …'
-
+echo ' • 0'
 echo
 echo '--- same directory as script'
 echo 'string-argument'

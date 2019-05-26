@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-echo " • «${0}» "
 
 if [[ ${#BASH_SOURCE[@]} == 0 ]]; then
    echo ' • (BASH_SOURCE is empty)'
@@ -11,4 +10,5 @@ for item in "${BASH_SOURCE[@]}"; do
    ((i++))
 done
 
+echo " • «${0}» "
 echo

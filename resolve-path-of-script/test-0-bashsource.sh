@@ -34,7 +34,7 @@ source "$source_with_a_source"
 echo
 echo '--- from another directory'
 in_another_directory=$(mktemp)
-cat <<- 'EOF' >"$in_another_directory"
+cat <<- 'EOF' > "$in_another_directory"
    echo 'string-argument'
    bash -c "$(cat 0bashsource.sh)"
 

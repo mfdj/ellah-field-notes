@@ -208,6 +208,38 @@ sources-loop-through.sh
 Each time a file is sourced it adds an item to the _BASH\_SOURCE_ array, with the
 shell-script being executed always being the last member.
 
+### dirname
+
+Is a string utility which will find the directory of a given path - it does this by
+doing something close to or exactly like:
+
+- striping all trailing slashes, meaning one or more slashes at the end of a string;
+  if the string ends in any non-slash character, including a space, it will not
+  remove any slashes
+- returning everything before the last slash in the string
+  - one exception: if the string contains a single slash (after stripping slashes)
+    and the string starts with this single slash character then a single slash
+    character will be returned
+
+The effect is to return the parent directory of a given file/folder. It does not
+do any validation to check if the path actually exists - it's just a string utility.
+
+```
+$ dirname .
+.
+$ dirname ./
+.
+$ dirname /asdf
+/
+$ dirname /asdf/\ /
+/
+$ dirname /asdf///
+/
+$ dirname asdf/ghjk
+asdf
+$ dirname ./asdf/ghjk
+./asdf
+```
 
 ## In the wild
 
@@ -215,3 +247,4 @@ shell-script being executed always being the last member.
 - http://stackoverflow.com/questions/59895/can-a-bash-script-tell-what-directory-its-stored-in?answertab=votes
 - https://bosker.wordpress.com/2012/02/12/bash-scripters-beware-of-the-cdpath/
 
+

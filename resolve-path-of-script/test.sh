@@ -2,9 +2,14 @@
 
 export PATH="./bin:$PATH"
 
-echo '§ test-current-directory-context'
+echo
+echo '📊 test-current-directory-context'
 ./test-current-directory-context.sh
 
 echo
-echo '§ test-0-bash-source'
+echo '📊 test-0-bashsource'
 ./test-0-bashsource.sh
+
+echo
+echo '📊 test-dirname'
+./test-dirname.sh

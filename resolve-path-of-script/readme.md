@@ -268,8 +268,27 @@ $ dirname ./asdf/ghjk
 ./asdf
 ```
 
+### cd and symlinks
+
+The `cd` builtin in the command which changes the current directory context. It
+accepts normal unix paths.
+
+```
+
+```
+
+### pwd
+
+…
+
+### readlink (and greadlink)
+
+…
+
 ## In the wild
 
 - https://gist.github.com/tvlooy/cbfbdb111a4ebad8b93e
 - http://stackoverflow.com/questions/59895/can-a-bash-script-tell-what-directory-its-stored-in?answertab=votes
 - https://bosker.wordpress.com/2012/02/12/bash-scripters-beware-of-the-cdpath/
+- http://mywiki.wooledge.org/BashFAQ/028
+- https://unix.stackexchange.com/questions/136494/whats-the-difference-between-realpath-and-readlink-f

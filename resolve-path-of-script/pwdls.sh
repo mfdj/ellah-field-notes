@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 echo -n "$PWD "
-ls dir-stub
+ls -m dir-stub

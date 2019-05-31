@@ -1,8 +1,16 @@
 #!/usr/bin/env bash
+#
+# Adapted from https://gist.github.com/tvlooy/cbfbdb111a4ebad8b93e
+#
+
+temp_dir=$(mktemp -d)
+script='test script'
+conrete_dir='demo directory'
+rm -rf "$temp_dir:?/"*
+expected_temp_dir="$(cd "$temp_dir" && pwd -P)/$conrete_dir"
 
 test() {
    local message actual expected
-   
    message=$1
    actual="$(bash "$2")"
    expected=$3
@@ -17,45 +25,32 @@ test() {
    echo -en "\033[0m"
 }
 
-temp_dir=$(mktemp -d)
-rm -rf "$temp_dir:?/"*
-expected_temp_dir=$(cd "$temp_dir" && pwd -P)
-
 test_suite() {
-   test 'absolute call'               "${temp_dir}/demo/test.sh"         "${expected_temp_dir}/demo"
-   test 'via symlinked dir'           "${temp_dir}/current/test.sh"      "${expected_temp_dir}/demo"
-   test 'via symlinked file'          "${temp_dir}/test.sh"              "${expected_temp_dir}/demo"
-   test 'via multiple symlinked dirs' "${temp_dir}/current/loop/test.sh" "${expected_temp_dir}/demo"
-   test 'with space in dir'           "${temp_dir}/12 34/test.sh"        "${expected_temp_dir}/demo"
-   test 'with space in file'          "${temp_dir}/demo/te st.sh"        "${expected_temp_dir}/demo"
-   pushd "${temp_dir}" >/dev/null && {
-      test 'relative call'            ./demo/test.sh                     "${expected_temp_dir}/demo"
+   test 'absolute call'          "$temp_dir/$conrete_dir/$script.sh"                  "$expected_temp_dir"
+   test 'via symlinked dir'      "$temp_dir/$conrete_dir-symlink/$script.sh"          "$expected_temp_dir"
+   test 'via symlinked file'     "$temp_dir/$script-symlink.sh"                       "$expected_temp_dir"
+   test 'via multiple symlinks'  "$temp_dir/$conrete_dir-symlink/loop/$script.sh"     "$expected_temp_dir"
+   test 'symlink script + dir'   "$temp_dir/$conrete_dir-symlink/$script-symlink.sh"  "$expected_temp_dir"
+   pushd "$temp_dir" > /dev/null && {
+      test 'relative call'       "./$conrete_dir/$script.sh"                          "$expected_temp_dir"
    }
    echo
 }
 
 setup() {
-   local demodir dirwithspace
+   mkdir "$temp_dir/$conrete_dir"
 
-   demodir="${temp_dir}/demo"
-   dirwithspace="${temp_dir}/12 34"
-   file=test.sh
-   file_with_space='te st.sh'
+   ln -s "$temp_dir/$conrete_dir"             "$temp_dir/$conrete_dir-symlink"
+   ln -s "$temp_dir/$conrete_dir"             "$temp_dir/$conrete_dir-symlink/loop"
+   ln -s "$temp_dir/$conrete_dir/$script.sh"  "$temp_dir/$script-symlink.sh"
+   ln -s "$temp_dir/$conrete_dir/$script.sh"  "$temp_dir/$conrete_dir-symlink/$script-symlink.sh"
 
-   mkdir "$demodir"
-   touch "$demodir/$file"
-   ln -s "$demodir/$file"  "$temp_dir"
-   ln -s "$demodir"        "$temp_dir/current"
-   ln -s "$demodir"        "$temp_dir/current/loop"
-   mkdir "$dirwithspace"
-   ln -s "$demodir/$file"  "$demodir/$file_with_space"
-   ln -s "$demodir/$file"  "$dirwithspace/$file"
-   ln -s "$demodir/$file"  "$dirwithspace/$file_with_space"
+   tree "$temp_dir"
 }
 
 cd_dirname_pwd() {
    echo 'Test via pwd'
-   cat <<- 'EOF' > "${temp_dir}/demo/test.sh"
+   cat <<- 'EOF' > "$temp_dir/$conrete_dir/$script.sh"
       current_dir="$(cd -P "$(dirname "$0")" && pwd)"
       echo "$current_dir"
 EOF
@@ -64,22 +59,22 @@ EOF
 
 complicated_so_solution() {
    echo 'Test complicated stackoverflow solution'
-   cat <<- 'EOF' > "${temp_dir}/demo/test.sh"
-currentfile="$0"
-while [ -h "$currentfile" ]; do
-   currentdir="$(cd -P "$(dirname "$currentfile")" && pwd)"
-   currentfile="$(readlink "$currentfile")"
-   [[ $currentfile != /* ]] && currentfile="$currentdir/$currentfile"
-done
-finaldir="$(cd -P "$(dirname "$currentfile")" && pwd)"
-echo "$finaldir"
+   cat <<- 'EOF' > "$temp_dir/$conrete_dir/$script.sh"
+      currentfile="$0"
+      while [ -h "$currentfile" ]; do
+         currentdir="$(cd -P "$(dirname "$currentfile")" && pwd)"
+         currentfile="$(readlink "$currentfile")"
+         [[ $currentfile != /* ]] && currentfile="$currentdir/$currentfile"
+      done
+      finaldir="$(cd -P "$(dirname "$currentfile")" && pwd)"
+      echo "$finaldir"
 EOF
    test_suite
 }
 
 dirname_readlink_0() {
    echo 'Test via readlink'
-   cat <<- 'EOF' > "${temp_dir}/demo/test.sh"
+   cat <<- 'EOF' > "$temp_dir/$conrete_dir/$script.sh"
       readlink_program=$(which greadlink readlink | head -n1)
       dirname "$("$readlink_program" -f "$0")"
 EOF
@@ -88,7 +83,7 @@ EOF
 
 cd_dirname_pwd() {
    echo 'Test via pwd'
-   cat <<- 'EOF' > "${temp_dir}/demo/test.sh"
+   cat <<- 'EOF' > "$temp_dir/$conrete_dir/$script.sh"
       current_dir="$(cd -P "$(dirname "$0")" && pwd)"
       echo "$current_dir"
 EOF

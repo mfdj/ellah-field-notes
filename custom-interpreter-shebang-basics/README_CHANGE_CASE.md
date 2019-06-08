@@ -12,7 +12,7 @@ This works if `custom-interpreter` is available in the `$PATH`.
 
 Linux allows shell scripts to be used directly as an interpreter but Darwin based
 systems (like macOS) do not allow this. Thus if `custom-interpreter` is a shell
-script the following will script will be silently forwarded to use the current
+script the following will script is actually silently forwarded to the current
 shell as the interpreter.
 
 ```
@@ -25,8 +25,8 @@ However it's simple to resolve this: just rely on `/usr/bin/env` to act as a pro
 
 ## What the interpreter sees when being proxied with env
 
-Since I'm currently working on Darwin I am ready to comment on how shell-script
-interpreters proxied via env behave.
+Since I'm working in a Darwin system I can comment on how shell-script interpreters 
+proxied via env behave.
 
 - `$0` is the relative path to the interpreter (relative to the path where the command
   is being invoked).

@@ -1,6 +1,6 @@
 # Aliases are weird
 
-Aliases are macro-y shorthands intended to make interactive shell usage more
+Aliases are macro-like shorthands intended to make interactive shell usage more
 user friendly.
 
 For this reason you must there are some important limitations to understand:

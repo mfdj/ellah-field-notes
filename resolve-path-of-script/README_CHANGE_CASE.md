@@ -9,10 +9,11 @@ When running a shell-script the **current directory context is the path where th
 script is ran from**, not the directory where the shell-script resides. This applies
 to all subsequent shell code executed (including when it's exec'd or source'd).
 
-While it's probably intuitively obvious if you've written more than few shell scripts
-it's a critical point to anchor on because Bash lacks a module import system. As
-a result single file shell-script programs are quite common. While embracing this
-limitation isn't always a bad thing, strictly speaking it's not necessary.
+While it's probably intuitively obvious after you've written a few shell scripts
+it's a critical to anchor on that shell scripts are optimized for automating interactive
+usage. As such Bash lacks a module import system. As a result single file shell-script 
+programs are quite common. While embracing this limitation isn't always a bad thing, 
+strictly speaking it's not necessary.
 
 ### The source problem
 

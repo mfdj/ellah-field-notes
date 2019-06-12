@@ -109,6 +109,15 @@ cd_stringsub_pwd() {
 }
 
 #
+# • another fork which swaps `pwd` for the `$PWD` env-variable
+# • seems to fail at the same cases as cd_stringsub_pwd
+#
+cd_stringsub_echo_pwd() {
+   current_dir="$(cd -P "${0%/*}" && echo "$PWD")"
+   echo "$current_dir"
+}
+
+#
 # • …
 #
 readlink_loop() {
@@ -163,6 +172,7 @@ else
    all_functions=(
       cd_dirname_pwd
       cd_stringsub_pwd
+      cd_stringsub_echo_pwd
       readlink_loop
       dirname_readlink_0
       rbenv_abs_dirname

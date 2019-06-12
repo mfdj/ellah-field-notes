@@ -11,8 +11,8 @@ to all subsequent shell code executed (including when it's exec'd or source'd).
 
 While it's probably intuitively obvious after you've written a few shell scripts
 it's a critical to anchor on that shell scripts are optimized for automating interactive
-usage. As such Bash lacks a module import system. As a result single file shell-script 
-programs are quite common. While embracing this limitation isn't always a bad thing, 
+usage. As such Bash lacks a module import system. As a result single file shell-script
+programs are quite common. While embracing this limitation isn't always a bad thing,
 strictly speaking it's not necessary.
 
 ### The source problem
@@ -269,18 +269,26 @@ $ dirname ./asdf/ghjk
 ./asdf
 ```
 
-### cd and symlinks
+### cd, pwd, $PWD, and symlinks
 
 The `cd` builtin in the command which changes the current directory context. It
-accepts normal unix paths.
+accepts normal unix paths. When passed nothing it changes into `$HOME`.
 
-```
+When passed `-P` then symbolic links are resolved while cd is traversing the path
+before processing an instance of `..` in directory.
 
-```
+The `pwd` builtin prints the current working directory and has a similar behavior
+with and without a `-P` flag.
 
-### pwd
+I have yet to contrive an example where `cd -P <path>; pwd` and `cd <path>; pwd -P`
+create different results; it's pretty safe to say they are interchangeable path
+resolvers.
 
-…
+One thing to consider is that `pwd` builtin should return the same value as `$PWD`
+so we can add `cd -P <path>; echo "$PWD"` to our set of equivalent path resolvers.
+
+It's worth underlining that `cd <path>; echo "$PWD"` is discluded from the set
+because symlinks will not be resolved.
 
 ### readlink (and greadlink)
 

@@ -97,6 +97,18 @@ cd_dirname_pwd() {
 }
 
 #
+# • fork of cd_dirname_pwd
+# • plus: has one less subshell!
+# • minus: (hard to automate in the suite) will break if the script is at the root
+#   like `bash /test.sh`
+# • otherwise generally seems to fail at the same cases as cd_dirname_pwd
+#
+cd_stringsub_pwd() {
+   current_dir="$(cd -P "${0%/*}" && pwd)"
+   echo "$current_dir"
+}
+
+#
 # • …
 #
 readlink_loop() {
@@ -150,6 +162,7 @@ if [ "$1" != "" ]; then
 else
    all_functions=(
       cd_dirname_pwd
+      cd_stringsub_pwd
       readlink_loop
       dirname_readlink_0
       rbenv_abs_dirname

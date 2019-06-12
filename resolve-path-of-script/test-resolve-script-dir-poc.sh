@@ -3,10 +3,12 @@
 # Adapted from https://gist.github.com/tvlooy/cbfbdb111a4ebad8b93e
 #
 
+test_name=$(basename "$0" | sed 's/\.sh//') # filename with .sh stripped
 temp_dir=$(mktemp -d)
 script='test script'
-conrete_dir='demo directory'
+conrete_dir="$test_name demo directory"
 adjacent_dir='nested plus/adjacent location'
+seperate_root_temp_dir="$HOME/.tmp/$test_name/$temp_dir"
 rm -rf "$temp_dir:?/"*
 default_expectation="$(cd "$temp_dir" && pwd -P)/$conrete_dir"
 
@@ -29,11 +31,14 @@ assert() {
 assertions() {
    assert 'absolute call'            "$temp_dir/$conrete_dir/$script.sh"
    assert 'via symlinked dir'        "$temp_dir/$conrete_dir-symlink/$script.sh"
+   assert 'via symlinked dir #2'     "$seperate_root_temp_dir/$conrete_dir-symlink/$script.sh"
    assert 'via symlinked file'       "$temp_dir/$script-symlink.sh"
+   assert 'via symlinked file #2'    "$seperate_root_temp_dir/$script-symlink.sh"
    assert 'via multiple symlinks #1' "$temp_dir/$conrete_dir-symlink/loop/$script.sh"
    assert 'via multiple symlinks #2' "$temp_dir/$adjacent_dir/$conrete_dir-symlink/$script.sh"
    assert 'symlink script + dir #1'  "$temp_dir/$conrete_dir-symlink/$script-symlink.sh"
    assert 'symlink script + dir #2'  "$temp_dir/$adjacent_dir/$script-symlink.sh"
+   assert 'symlink script + dir #3'  "$seperate_root_temp_dir/$conrete_dir-symlink/$script-symlink.sh"
    pushd "$temp_dir" > /dev/null && {
       assert 'relative call'         "./$conrete_dir/$script.sh"
    }
@@ -42,6 +47,7 @@ assertions() {
 
 setup() {
    mkdir "$temp_dir/$conrete_dir"
+   mkdir -p "$seperate_root_temp_dir"
    mkdir -p "$temp_dir/$adjacent_dir"
    touch "$temp_dir/$conrete_dir/$script.sh"
 
@@ -52,8 +58,13 @@ setup() {
    ln -s  "$temp_dir/$conrete_dir/$script.sh"  "$temp_dir/$conrete_dir-symlink/$script-symlink.sh"
    ln -s  "$temp_dir/$conrete_dir/$script.sh"  "$temp_dir/$adjacent_dir/$script-symlink.sh"
 
+   # seperate_root_temp_dir
+   ln -s  "$temp_dir/$conrete_dir"             "$seperate_root_temp_dir/$conrete_dir-symlink"
+   ln -s  "$temp_dir/$conrete_dir/$script.sh"  "$seperate_root_temp_dir/$script-symlink.sh"
+
    echo
    tree "$temp_dir"
+   tree "$seperate_root_temp_dir"
    echo
 }
 

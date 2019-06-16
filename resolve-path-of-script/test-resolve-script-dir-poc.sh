@@ -3,7 +3,7 @@
 # Adapted from https://gist.github.com/tvlooy/cbfbdb111a4ebad8b93e
 #
 
-test_name=$(basename "$0" | sed 's/\.sh//') # filename with .sh stripped
+test_name=$(basename "$0" .sh) # filename with .sh stripped
 temp_dir=$(mktemp -d)
 script='test script'
 conrete_dir="$test_name demo directory"

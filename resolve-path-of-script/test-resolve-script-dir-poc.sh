@@ -167,6 +167,11 @@ rbenv_abs_dirname() {
    cd "$cwd" || return 1
 }
 
+#
+# •
+#
+realpath_binary() {
+   dirname "$(realpath "$0")"
 }
 
 # - - -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
@@ -183,6 +188,7 @@ else
       readlink_loop
       dirname_gnu_readlink_0
       rbenv_abs_dirname
+      realpath_binary
    )
 
    for func in "${all_functions[@]}"; do

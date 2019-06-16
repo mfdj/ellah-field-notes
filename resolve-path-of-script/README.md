@@ -65,14 +65,16 @@ Let's define our terms:
   case that can happen in all the other contexts — i.e. `source path/to/file.sh`
   — and has a few quirks of it's own
 
-**Standard Bash tools at our disposable**
+**Standard shell tools at our disposable**
 
 - $0
 - $BASH_SOURCE
-- dirname
-- cd
-- pwd
-- readlink (and greadlink)
+- string substitution
+- cd - shell builtin and macos binary /usr/bin/cd
+- pwd - shell builtin and macos binary /bin/pwd
+- dirname - macos binary /usr/bin/dirname
+- readlink - macos binary /usr/bin/readlink
+  - greadlink a useful gnu alternative available on homebrew
 
 ### Getting your bearings with $0 and $BASH\_SOURCE
 

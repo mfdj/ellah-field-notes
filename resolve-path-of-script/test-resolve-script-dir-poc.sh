@@ -143,26 +143,35 @@ dirname_readlink_0() {
 # • adapted from https://github.com/rbenv/rbenv/blob/master/libexec/rbenv#L34-L50
 # • inlined resolve_link to ease integeration with this test runner (doesn't change behavior meaningfully)
 # • added `cd … || return 1` because this script doesn't use `set -e`
-# • Added `-P` to `cd -P "${path%/*}"` because it's the result we expect (and is essentially more accurate)
+# • Added `-P` to pwd because it's the result we expect in the suite (more accurate but unncessary for rbenv)
 #
 rbenv_abs_dirname() {
    local cwd="$PWD"
    local path="$0"
 
+   # `-p` returns the name of the disk file or nothing
    RBENV_READLINK=$(type -p greadlink readlink | head -1)
    rbenv_resolve_link() {
       "$RBENV_READLINK" "$1"
    }
 
-   while [ -n "$path" ]; do
-      cd -P "${path%/*}" || return 1
+   # loop until path is an empty string
+   while [[ -n "$path" ]]; do
+      # cd into directory, nearly equivalent to `cd "$(dirname "$path")"` becuase it will fail if
+      # directory is the root direcotry like `/foo`
+      cd "${path%/*}" || return 1
+      # extract filename from path
       local name="${path##*/}"
-      path="$(rbenv_resolve_link "$name" || true)"
+      # if file is a symlink return the symlink path, otherwise if it's not a symlink then exit the loop
+      path="$(rbenv_resolve_link "$name")"
    done
 
-   pwd
+
+   pwd -P
    cd "$cwd" || return 1
 }
+
+# - - -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
 
 setup
 

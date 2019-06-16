@@ -134,8 +134,10 @@ readlink_loop() {
 #
 # • …
 #
-dirname_readlink_0() {
+dirname_gnu_readlink_0() {
+   # NOTE: what is the difference between `which` and `type -p`?
    readlink_program=$(which greadlink readlink | head -n1)
+   # only works with GNU readlink; won't work with BSD readlink
    dirname "$("$readlink_program" --canonicalize "$0")"
 }
 
@@ -149,12 +151,6 @@ rbenv_abs_dirname() {
    local cwd="$PWD"
    local path="$0"
 
-   # `-p` returns the name of the disk file or nothing
-   RBENV_READLINK=$(type -p greadlink readlink | head -1)
-   rbenv_resolve_link() {
-      "$RBENV_READLINK" "$1"
-   }
-
    # loop until path is an empty string
    while [[ -n "$path" ]]; do
       # cd into directory, nearly equivalent to `cd "$(dirname "$path")"` becuase it will fail if
@@ -163,12 +159,14 @@ rbenv_abs_dirname() {
       # extract filename from path
       local name="${path##*/}"
       # if file is a symlink return the symlink path, otherwise if it's not a symlink then exit the loop
-      path="$(rbenv_resolve_link "$name")"
+      path="$(readlink "$name")"
    done
 
 
    pwd -P
    cd "$cwd" || return 1
+}
+
 }
 
 # - - -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
@@ -183,7 +181,7 @@ else
       cd_stringsub_pwd
       cd_stringsub_echo_pwd
       readlink_loop
-      dirname_readlink_0
+      dirname_gnu_readlink_0
       rbenv_abs_dirname
    )
 

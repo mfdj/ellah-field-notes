@@ -70,11 +70,14 @@ Let's define our terms:
 - $0
 - $BASH_SOURCE
 - string substitution
-- cd - shell builtin and macos binary /usr/bin/cd
-- pwd - shell builtin and macos binary /bin/pwd
-- dirname - macos binary /usr/bin/dirname
-- readlink - macos binary /usr/bin/readlink
-  - greadlink a useful gnu alternative available on homebrew
+- cd - shell builtin and macOS binary /usr/bin/cd
+- pwd - shell builtin and macOS binary /bin/pwd
+- dirname - macOS binary /usr/bin/dirname
+- readlink - macOS binary /usr/bin/readlink which acts a wrapper of /usr/bin/stat
+  - there is a useful GNU alternative available on Homebrew via coreutils package
+- realapth a useful GNU command available on Homebrew via coreutils package
+
+\* all macOS binaries above are via the BSD ecosystem
 
 ### Getting your bearings with $0 and $BASH\_SOURCE
 

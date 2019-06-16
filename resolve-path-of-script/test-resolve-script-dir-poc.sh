@@ -10,7 +10,7 @@ conrete_dir="$test_name demo directory"
 adjacent_dir='nested plus/adjacent location'
 seperate_root_temp_dir="$HOME/.tmp/$test_name/$temp_dir"
 rm -rf "$temp_dir:?/"*
-default_expectation="$(cd "$temp_dir" && pwd -P)/$conrete_dir"
+default_expectation="$(cd -P "$temp_dir" && echo "$PWD")/$conrete_dir"
 
 assert() {
    local message actual expected

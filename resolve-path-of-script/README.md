@@ -257,17 +257,17 @@ doing something close to or exactly like:
 The effect is to return the parent directory of a given file/folder. It does not
 do any validation to check if the path actually exists - it's just a string utility.
 
-```
+```sh
 $ dirname .
 .
 $ dirname ./
 .
 $ dirname /asdf
 /
-$ dirname /asdf/\ /
-/
 $ dirname /asdf///
 /
+$ dirname /asdf//\ //
+/asdf
 $ dirname asdf/ghjk
 asdf
 $ dirname ./asdf/ghjk

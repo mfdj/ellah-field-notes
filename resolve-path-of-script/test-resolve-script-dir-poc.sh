@@ -29,16 +29,16 @@ assert() {
 }
 
 assertions() {
-   assert 'absolute call'            "$temp_dir/$conrete_dir/$script.sh"
-   assert 'via symlinked dir'        "$temp_dir/$conrete_dir-symlink/$script.sh"
-   assert 'via symlinked dir #2'     "$seperate_root_temp_dir/$conrete_dir-symlink/$script.sh"
-   assert 'via symlinked file'       "$temp_dir/$script-symlink.sh"
-   assert 'via symlinked file #2'    "$seperate_root_temp_dir/$script-symlink.sh"
-   assert 'via multiple symlinks #1' "$temp_dir/$conrete_dir-symlink/loop/$script.sh"
-   assert 'via multiple symlinks #2' "$temp_dir/$adjacent_dir/$conrete_dir-symlink/$script.sh"
-   assert 'symlink script + dir #1'  "$temp_dir/$conrete_dir-symlink/$script-symlink.sh"
-   assert 'symlink script + dir #2'  "$temp_dir/$adjacent_dir/$script-symlink.sh"
-   assert 'symlink script + dir #3'  "$seperate_root_temp_dir/$conrete_dir-symlink/$script-symlink.sh"
+   assert 'absolute call'               "$temp_dir/$conrete_dir/$script.sh"
+   assert 'via symlinked dir'           "$temp_dir/$conrete_dir-symlink/$script.sh"
+   assert 'via symlinked dir #2'        "$seperate_root_temp_dir/$conrete_dir-symlink/$script.sh"
+   assert 'via symlinked file'          "$temp_dir/$script-symlink.sh"
+   assert 'via symlinked file #2'       "$seperate_root_temp_dir/$script-symlink.sh"
+   assert 'via multiple symlinks #1'    "$temp_dir/$conrete_dir-symlink/loop/$script.sh"
+   assert 'via multiple symlinks #2'    "$temp_dir/$adjacent_dir/$conrete_dir-symlink/$script.sh"
+   assert 'symlink script in adjacent'  "$temp_dir/$adjacent_dir/$script-symlink.sh"
+   assert 'symlink script + dir #1'     "$temp_dir/$conrete_dir-symlink/$script-symlink.sh"
+   assert 'symlink script + dir #2'     "$seperate_root_temp_dir/$conrete_dir-symlink/$script-symlink.sh"
    pushd "$temp_dir" > /dev/null && {
       assert 'relative call'         "./$conrete_dir/$script.sh"
    }
@@ -52,7 +52,7 @@ setup() {
    touch "$temp_dir/$conrete_dir/$script.sh"
 
    ln -s  "$temp_dir/$conrete_dir"             "$temp_dir/$conrete_dir-symlink"
-   ln -s  "$temp_dir/$conrete_dir"             "$temp_dir/$conrete_dir-symlink/loop"
+   ln -s  "$temp_dir/$conrete_dir-symlink"     "$temp_dir/$conrete_dir-symlink/loop"
    ln -s  "$temp_dir/$conrete_dir"             "$temp_dir/$adjacent_dir/$conrete_dir-symlink"
    ln -s  "$temp_dir/$conrete_dir/$script.sh"  "$temp_dir/$script-symlink.sh"
    ln -s  "$temp_dir/$conrete_dir/$script.sh"  "$temp_dir/$conrete_dir-symlink/$script-symlink.sh"
@@ -90,30 +90,11 @@ test_function() {
 # • `cd -P` changes into that directory, resolving any symlinks to their
 #    physical path
 # • `&& pwd` if the cd is successful will print the absolute working directory
+# • optimization, skip a subshell and use `"${0%/*}"` instead of `dirname "$0"``;
+#   will break if the script is at the root like `bash /test.sh`
 #
-cd_dirname_pwd() {
-   current_dir="$(cd -P "$(dirname "$0")" && pwd)"
-   echo "$current_dir"
-}
-
-#
-# • fork of cd_dirname_pwd
-# • plus: has one less subshell!
-# • minus: (hard to automate in the suite) will break if the script is at the root
-#   like `bash /test.sh`
-# • otherwise generally seems to fail at the same cases as cd_dirname_pwd
-#
-cd_stringsub_pwd() {
-   current_dir="$(cd -P "${0%/*}" && pwd)"
-   echo "$current_dir"
-}
-
-#
-# • another fork which swaps `pwd` for the `$PWD` env-variable
-# • seems to fail at the same cases as cd_stringsub_pwd
-#
-cd_stringsub_echo_pwd() {
-   current_dir="$(cd -P "${0%/*}" && echo "$PWD")"
+cd_dirname_echo_pwd() {
+   current_dir="$(cd -P "$(dirname "$0")" && echo "$PWD")"
    echo "$current_dir"
 }
 
@@ -125,13 +106,15 @@ readlink_loop() {
    name="$0"
    # loop while name is not a symlink
    while [[ -h "$name" ]]; do
-      # loop while name is not a symlink
-      currentdir="$(cd "$(dirname "$name")" && pwd)"
+      # change into directory and grab the path
+      currentdir="$(cd -P "$(dirname "$name")" && echo "$PWD")"
+      # grab the value of the symlink
       name="$(readlink "$name")"
+      # if the symlink isn't an absolute path create a new path with the symlink
       [[ $name != /* ]] && name="$currentdir/$name"
    done
-   finaldir="$(cd "$(dirname "$name")" && pwd -P)"
-   echo "$finaldir"
+   # once the  print the final path
+   echo "$(cd -P "$(dirname "$name")" && echo "$PWD")"
 }
 
 #
@@ -185,9 +168,7 @@ if [ "$1" != "" ]; then
    test_function "$1"
 else
    all_functions=(
-      cd_dirname_pwd
-      cd_stringsub_pwd
-      cd_stringsub_echo_pwd
+      cd_dirname_echo_pwd
       readlink_loop
       rbenv_abs_dirname
       dirname_gnu_readlink

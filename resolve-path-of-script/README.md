@@ -295,9 +295,34 @@ so we can add `cd -P <path>; echo "$PWD"` to our set of equivalent path resolver
 It's worth underlining that `cd <path>; echo "$PWD"` is discluded from the set
 because symlinks will not be resolved.
 
-### readlink (and greadlink)
+### readlink and realpath
 
-…
+The readlink utility takes a path argument and prints the value of the file if
+it's a symlink. If the file does not exist or is not a symlink it prints nothing
+and exits with an error code.
+
+```
+$ touch filea
+$ ln -s filea points-at-a
+$ readlink points-at-a
+filea
+```
+
+Certain versions of readlink implement a `--canonicalize` option will print the
+absolute path of the file, resolving all symlinks. With this option the resolved
+path is always printed, even if the file is not a symlink or doesn't exist.
+
+The realpath utility basically works the same as readlink canonicalize.
+
+On macOS the system readlink does not support canonicalize, and macOS does not ship
+with realpath installed. They can need be installed via Homebrew, using the GNU
+coreutils package.
+
+See:
+- [GNU core utilities](https://www.gnu.org/software/coreutils/coreutils.html)
+   - [readlink](https://www.gnu.org/software/coreutils/manual/html_node/readlink-invocation.html)
+   - [realpath](https://www.gnu.org/software/coreutils/manual/html_node/realpath-invocation.html)
+- [What's the difference between “realpath” and “readlink -f”](https://unix.stackexchange.com/questions/136494/whats-the-difference-between-realpath-and-readlink-f)
 
 ## In the wild
 

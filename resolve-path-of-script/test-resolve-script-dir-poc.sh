@@ -121,24 +121,17 @@ cd_stringsub_echo_pwd() {
 # • …
 #
 readlink_loop() {
-   currentfile="$0"
-   while [ -h "$currentfile" ]; do
-      currentdir="$(cd -P "$(dirname "$currentfile")" && pwd)"
-      currentfile="$(readlink "$currentfile")"
-      [[ $currentfile != /* ]] && currentfile="$currentdir/$currentfile"
+   local name currentdir
+   name="$0"
+   # loop while name is not a symlink
+   while [[ -h "$name" ]]; do
+      # loop while name is not a symlink
+      currentdir="$(cd "$(dirname "$name")" && pwd)"
+      name="$(readlink "$name")"
+      [[ $name != /* ]] && name="$currentdir/$name"
    done
-   finaldir="$(cd -P "$(dirname "$currentfile")" && pwd)"
+   finaldir="$(cd "$(dirname "$name")" && pwd -P)"
    echo "$finaldir"
-}
-
-#
-# • …
-#
-dirname_gnu_readlink_0() {
-   # NOTE: what is the difference between `which` and `type -p`?
-   readlink_program=$(which greadlink readlink | head -n1)
-   # only works with GNU readlink; won't work with BSD readlink
-   dirname "$("$readlink_program" --canonicalize "$0")"
 }
 
 #
@@ -168,9 +161,19 @@ rbenv_abs_dirname() {
 }
 
 #
-# •
+# • …
 #
-realpath_binary() {
+dirname_gnu_readlink() {
+   # NOTE: what is the difference between `which` and `type -p`?
+   readlink_program=$(which greadlink readlink | head -n1)
+   # only works with GNU readlink; won't work with Darwin's BSD readlink
+   dirname "$("$readlink_program" --canonicalize "$0")"
+}
+
+#
+# • …
+#
+dirname_gnu_realpath() {
    dirname "$(realpath "$0")"
 }
 
@@ -186,9 +189,9 @@ else
       cd_stringsub_pwd
       cd_stringsub_echo_pwd
       readlink_loop
-      dirname_gnu_readlink_0
       rbenv_abs_dirname
-      realpath_binary
+      dirname_gnu_readlink
+      dirname_gnu_realpath
    )
 
    for func in "${all_functions[@]}"; do

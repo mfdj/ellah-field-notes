@@ -28,7 +28,7 @@ assert() {
    echo -en "\033[0m"
 }
 
-assertions() {
+time assertions() {
    assert 'absolute call'               "$temp_dir/$conrete_dir/$script.sh"
    assert 'via symlinked dir'           "$temp_dir/$conrete_dir-symlink/$script.sh"
    assert 'via symlinked dir #2'        "$seperate_root_temp_dir/$conrete_dir-symlink/$script.sh"
@@ -81,7 +81,9 @@ test_function() {
    type "$funcname" | tail -n+2  > "$temp_dir/$conrete_dir/$script.sh"
    echo "$funcname"             >> "$temp_dir/$conrete_dir/$script.sh"
 
-   assertions
+   time assertions
+   echo
+   echo
 }
 
 #
@@ -138,7 +140,6 @@ rbenv_abs_dirname() {
       path="$(readlink "$name")"
    done
 
-
    pwd -P
    cd "$cwd" || return 1
 }
@@ -160,6 +161,20 @@ dirname_gnu_realpath() {
    dirname "$(realpath "$0")"
 }
 
+#
+# • …
+#
+php_realpath() {
+   php -r "echo dirname(realpath('$0'));"
+}
+
+#
+# • …
+#
+node_realpath() {
+   node -e "console.log(require('path').dirname(require('fs').realpathSync('$0')))"
+}
+
 # - - -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
 
 setup
@@ -173,6 +188,8 @@ else
       rbenv_abs_dirname
       dirname_gnu_readlink
       dirname_gnu_realpath
+      php_realpath
+      node_realpath
    )
 
    for func in "${all_functions[@]}"; do

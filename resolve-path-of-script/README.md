@@ -319,6 +319,7 @@ with realpath installed. They can need be installed via Homebrew, using the GNU
 coreutils package.
 
 See:
+
 - [GNU core utilities](https://www.gnu.org/software/coreutils/coreutils.html)
    - [readlink](https://www.gnu.org/software/coreutils/manual/html_node/readlink-invocation.html)
    - [realpath](https://www.gnu.org/software/coreutils/manual/html_node/realpath-invocation.html)

@@ -4,7 +4,7 @@ export PATH="./bin:$PATH"
 echo '1️⃣  runner-env'
 runner-env
 
-# doen't work as expected, see notes.md
+# doen't work as expected, see readme.md
 echo
 echo '2️⃣  runner-relative'
 runner-relative

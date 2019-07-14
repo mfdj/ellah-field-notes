@@ -1,4 +1,4 @@
-# Custom interpreter in a shebang basics
+# Custom interpreter in a shebang 
 
 You can specify any executable as a shebang (caveats for "any" discussed later)
 
@@ -25,11 +25,11 @@ However it's simple to resolve this: just rely on `/usr/bin/env` to act as a pro
 
 ## What the interpreter sees when being proxied with env
 
-Since I'm working in a Darwin system I can comment on how shell-script interpreters 
+Since I'm working in a Darwin system I can comment on how shell-script interpreters
 proxied via env behave.
 
 - `$0` is the relative path to the interpreter (relative to the path where the command
-  is being invoked).
+  is being invoked)
 - `$1` is the relative path to the file using the interpreter as a shebang
 - `stdin` is the contents of the file located at the path `$1`
 

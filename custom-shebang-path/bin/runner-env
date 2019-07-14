@@ -1,3 +1,4 @@
 #!/usr/bin/env custom-interpreter
+# shellcheck shell=bash
 
 echo 'runner using env to lookup custom-interpreter 🏃‍'

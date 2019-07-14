@@ -1,0 +1,10 @@
+{
+  "name": "using-bpkg",
+  "version": "0.0.1",
+  "install": "",
+  "scripts": [""],
+  "dependencies": {
+    "term": "0.0.1",
+    "danilocgsilva/uget": "master",
+  }
+}

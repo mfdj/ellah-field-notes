@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+
 #
 # Adapted from https://gist.github.com/tvlooy/cbfbdb111a4ebad8b93e
 #
@@ -28,7 +29,7 @@ assert() {
    echo -en "\033[0m"
 }
 
-time assertions() {
+assertions() {
    assert 'absolute call'               "$temp_dir/$conrete_dir/$script.sh"
    assert 'via symlinked dir'           "$temp_dir/$conrete_dir-symlink/$script.sh"
    assert 'via symlinked dir #2'        "$seperate_root_temp_dir/$conrete_dir-symlink/$script.sh"
@@ -131,12 +132,13 @@ rbenv_abs_dirname() {
 
    # loop until path is an empty string
    while [[ -n "$path" ]]; do
-      # cd into directory, nearly equivalent to `cd "$(dirname "$path")"` becuase it will fail if
-      # directory is the root direcotry like `/foo`
+      # cd into directory using string-substutuion; nearly equivalent to `cd "$(dirname "$path")"`
+      # but different becuase this method will fail if the directory is in the root
+      # direcotry like `/foo`
       cd "${path%/*}" || return 1
       # extract filename from path
       local name="${path##*/}"
-      # if file is a symlink return the symlink path, otherwise if it's not a symlink then exit the loop
+      # if file is a symlink return the symlink path otherwise return nothing
       path="$(readlink "$name")"
    done
 

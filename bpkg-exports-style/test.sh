@@ -8,3 +8,6 @@ echo
 echo '🗒 test-minus-exit-code.sh'
 ./test-minus-exit-code.sh
 
+echo
+echo '🗒 test-minus-export.sh'
+./test-minus-export.sh

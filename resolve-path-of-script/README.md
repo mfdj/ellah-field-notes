@@ -52,7 +52,7 @@ Hard, but still very possible.
 Let's define our terms:
 
 - **interactive usage** refers to code typed in a shell prompt
-- **string-argument** evaluation refers to code passed directly to to the bash
+- **script-as-string-arg** evaluation refers to code passed directly to to the bash
   binary as an argument or via stdin (rare in practice but useful in certain situations)
   - as an argument `bash -c "<bash code>"`
   - or piped `echo "<bash code>" | bash`
@@ -90,9 +90,9 @@ tersely:
   the corresponding shell function names in the FUNCNAME array variable are defined.
   ([manual](https://www.gnu.org/software/bash/manual/bash.html#index-BASH_005fSOURCE))
 
-**$0 in the interactive and string-argument contexts**
+**$0 in the interactive and script-as-string-arg contexts**
 
-In the interactive and string-argument contexts `$0` is the name of the shell (bash!)
+In the interactive and script-as-string-arg contexts `$0` is the name of the shell (bash!)
 with a subtle difference being that the interactive shell name leads with a dash:
 
 ```sh
@@ -164,9 +164,9 @@ $ bash path/to/file.sh
 path/to/file.sh
 ```
 
-**$BASH_SOURE in the interactive and string-argument contexts**
+**$BASH_SOURE in the interactive and script-as-string-arg contexts**
 
-In the interactive and string-argument contexts `$BASH_SOURCE` is an empty array:
+In the interactive and script-as-string-arg contexts `$BASH_SOURCE` is an empty array:
 
 ```sh
 $ declare -p BASH_SOURCE

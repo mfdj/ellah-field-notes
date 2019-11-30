@@ -6,5 +6,6 @@
   "dependencies": {
     "term": "0.0.1",
     "danilocgsilva/uget": "master",
+    "mfdj/colored-logger.bash": "0.0.2"
   }
 }

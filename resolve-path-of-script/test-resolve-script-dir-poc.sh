@@ -122,7 +122,6 @@ readlink_loop() {
 
 #
 # • adapted from https://github.com/rbenv/rbenv/blob/master/libexec/rbenv#L34-L50
-# • inlined resolve_link to ease integeration with this test runner (doesn't change behavior meaningfully)
 # • added `cd … || return 1` because this script doesn't use `set -e`
 # • Added `-P` to pwd because it's the result we expect in the suite (more accurate but unncessary for rbenv)
 #

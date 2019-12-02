@@ -23,5 +23,7 @@ if [[ $# == 0 ]]; then
    echo '📊 test-resolve-script-dir-poc'
    ./test-resolve-script-dir-poc.sh
 else
-   find . -depth 1 -type f -iname "*${1}*" -exec bash -c 'echo "$1" && $1 "$2"' _ {} "$2" \;
+   script_pattern=$1
+   shift
+   find . -depth 1 -type f -iname "*${script_pattern}*" -exec bash -c 'script=$1; shift; echo "$script"; $script "$@"' _ {} "$@" \;
 fi

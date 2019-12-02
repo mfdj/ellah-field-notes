@@ -180,8 +180,10 @@ node_realpath() {
 
 setup
 
-if [ "$1" != "" ]; then
-   test_function "$1"
+if (( $# > 0 )); then
+   for func in "$@"; do
+      test_function "$func"
+   done
 else
    all_functions=(
       cd_dirname_echo_pwd

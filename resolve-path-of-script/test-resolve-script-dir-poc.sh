@@ -80,7 +80,7 @@ test_function() {
 
    echo "Test: $funcname"
    type "$funcname" | tail -n+2  > "$temp_dir/$conrete_dir/$script.sh"
-   echo "$funcname"             >> "$temp_dir/$conrete_dir/$script.sh"
+   echo "$funcname \"\$0\""     >> "$temp_dir/$conrete_dir/$script.sh"
 
    time assertions
    echo
@@ -88,16 +88,16 @@ test_function() {
 }
 
 #
-# • `dirname $0` truncates the script file from the path expression (recall,
+# • `dirname $path` truncates the script file from the path expression (recall,
 #   dirname is essentially a string utility)
 # • `cd -P` changes into that directory, resolving any symlinks to their
 #    physical path
 # • `&& pwd` if the cd is successful will print the absolute working directory
-# • optimization, skip a subshell and use `"${0%/*}"` instead of `dirname "$0"``;
+# • optimization, skip a subshell and use `"${path%/*}"` instead of `dirname "$path"``;
 #   will break if the script is at the root like `bash /test.sh`
 #
 cd_dirname_echo_pwd() {
-   current_dir="$(cd -P "$(dirname "$0")" && echo "$PWD")"
+   current_dir="$(cd -P "$(dirname "$1")" && echo "$PWD")"
    echo "$current_dir"
 }
 
@@ -106,7 +106,7 @@ cd_dirname_echo_pwd() {
 #
 readlink_loop() {
    local name currentdir
-   name="$0"
+   name="$1"
    # loop while name is not a symlink
    while [[ -h "$name" ]]; do
       # change into directory and grab the path
@@ -127,7 +127,7 @@ readlink_loop() {
 #
 rbenv_abs_dirname() {
    local cwd="$PWD"
-   local path="$0"
+   local path="$1"
 
    # loop until path is an empty string
    while [[ -n "$path" ]]; do
@@ -152,28 +152,28 @@ dirname_gnu_readlink() {
    # NOTE: what is the difference between `which` and `type -p`?
    readlink_program=$(which greadlink readlink | head -n1)
    # only works with GNU readlink; won't work with Darwin's BSD readlink
-   dirname "$("$readlink_program" --canonicalize "$0")"
+   dirname "$("$readlink_program" --canonicalize "$1")"
 }
 
 #
 # • …
 #
 dirname_gnu_realpath() {
-   dirname "$(realpath "$0")"
+   dirname "$(realpath "$1")"
 }
 
 #
 # • …
 #
 php_realpath() {
-   php -r "echo dirname(realpath('$0'));"
+   php -r "echo dirname(realpath('$1'));"
 }
 
 #
 # • …
 #
 node_realpath() {
-   node -e "console.log(require('path').dirname(require('fs').realpathSync('$0')))"
+   node -e "console.log(require('path').dirname(require('fs').realpathSync('$1')))"
 }
 
 # - - -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -

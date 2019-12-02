@@ -121,13 +121,38 @@ readlink_loop() {
 }
 
 #
-# • adapted from https://github.com/rbenv/rbenv/blob/master/libexec/rbenv#L34-L50
+# • best effort port of https://github.com/rbenv/rbenv/blob/master/libexec/rbenv#L31-L50
+# • had to inline rbenv_resolve_link for test suite (shouldn't meaningfully effect outcome)
 # • added `cd … || return 1` because this script doesn't use `set -e`
 # • Added `-P` to pwd because it's the result we expect in the suite (more accurate but unncessary for rbenv)
 #
-rbenv_abs_dirname() {
+rbenv_abs_dirname_original() {
    local cwd="$PWD"
    local path="$1"
+
+   [ -z $RBENV_READLINK ] && RBENV_READLINK=$(type -p greadlink readlink 2>/dev/null | head -1)
+   rbenv_resolve_link() {
+      $RBENV_READLINK "$1"
+   }
+
+   while [ -n "$path" ]; do
+      cd "${path%/*}" || retrun 1
+      local name="${path##*/}"
+      path="$(rbenv_resolve_link "$name")"
+   done
+
+   pwd -P
+   cd "$cwd" || return 1
+}
+
+#
+# • stremalined version of rbenv_abs_dirname_original
+# • mainly skips looking for GNU readlink
+#
+rbenv_abs_dirname_streamlined() {
+   local cwd="$PWD"
+   local path="$1"
+   local name
 
    # loop until path is an empty string
    while [[ -n "$path" ]]; do
@@ -136,7 +161,7 @@ rbenv_abs_dirname() {
       # direcotry like `/foo`
       cd "${path%/*}" || return 1
       # extract filename from path
-      local name="${path##*/}"
+      name="${path##*/}"
       # if file is a symlink return the symlink path otherwise return nothing
       path="$(readlink "$name")"
    done
@@ -188,7 +213,8 @@ else
    all_functions=(
       cd_dirname_echo_pwd
       readlink_loop
-      rbenv_abs_dirname
+      rbenv_abs_dirname_original
+      rbenv_abs_dirname_streamlined
       dirname_gnu_readlink
       dirname_gnu_realpath
       php_realpath
